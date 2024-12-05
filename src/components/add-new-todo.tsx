@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -36,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Toast } from "./ui/toast";
 import { toast } from "@/hooks/use-toast";
+import { createId } from "@paralleldrive/cuid2";
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -66,12 +66,12 @@ export const AddNewTodo = () => {
       {
         title: data.title,
         color: data.color,
+        id: createId(),
       },
     ]);
     setOpen(false);
-    const description = `Added new todo: ${data.title}, with color: ${data.color}`;
+    const description = `Created a new todo tracker: ${data.title} with color ${data.color}`;
     toast({
-      type: "foreground",
       title: "Added new todo",
       description,
     });
