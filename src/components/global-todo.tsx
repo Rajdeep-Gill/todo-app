@@ -2,7 +2,12 @@ import { ToDoContext } from "@/App";
 import { useContext, useState } from "react";
 import { Card, CardContent, CardTitle } from "./ui/card";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "./ui/tooltip";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "./ui/tooltip";
 
 export const GlobalTodo = () => {
   const { todos } = useContext(ToDoContext);
@@ -21,7 +26,7 @@ export const GlobalTodo = () => {
   const borderColor = "#1d318a";
   const minColor = "#f7f7f7";
 
-  const colorListLen = todos.length + 1;
+  const colorListLen = todos.length;
 
   // interpolate between maxColor and minColor to get the color for the various completed at that day
   const interpolateColor = (index: number): string => {
@@ -38,7 +43,7 @@ export const GlobalTodo = () => {
     const maxRgb = hexToRgb(maxColor);
     const minRgb = hexToRgb(minColor);
 
-    const ratio = index / (totalColors - 1);
+    const ratio = index / (totalColors);
 
     const interpolated = {
       r: Math.round(maxRgb.r * ratio + minRgb.r * (1 - ratio)),
@@ -47,6 +52,22 @@ export const GlobalTodo = () => {
     };
 
     return rgbToHex(interpolated);
+  };
+
+  const getDayOfYear = (date: Date): number => {
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date.getTime() - start.getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay) - 1;
+  };
+
+  const today = getDayOfYear(new Date());
+
+  const getDateFromIndex = (index: number): Date => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const date = new Date(start.getTime() + (index + 1) * 24 * 60 * 60 * 1000);
+    return date;
   };
 
   return (
@@ -69,11 +90,14 @@ export const GlobalTodo = () => {
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "size-3 rounded-full cursor-pointer border-[1px] border-opacity-40 transition-colors"
+                    "size-3 rounded-full cursor-pointer border-[1px] border-opacity-40 transition-colors",
+                    today===index && "ring-[1.5px] ring-offset-1"
                   )}
                   style={{
                     backgroundColor: interpolateColor(totalCompleted[index]),
                     borderColor: borderColor,
+                    ...(index === today &&
+                      ({ "--tw-ring-color": borderColor } as any)),
                   }}
                   key={index}
                 ></div>
@@ -86,6 +110,13 @@ export const GlobalTodo = () => {
                 }}
                 className="border-2 font-medium"
               >
+                <h1>
+                  {getDateFromIndex(index).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    weekday: "short",
+                  })}
+                </h1>
                 {totalCompleted[index]} / {colorListLen}
               </TooltipContent>
             </Tooltip>
@@ -95,4 +126,3 @@ export const GlobalTodo = () => {
     </Card>
   );
 };
-
