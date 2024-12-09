@@ -5,11 +5,13 @@ import { AddNewTodo } from "./components/add-new-todo";
 import { ToDo } from "./components/todo";
 import { Button } from "./components/ui/button";
 import { createId } from "@paralleldrive/cuid2";
+import { GlobalTodo } from "./components/global-todo";
 
 type Todo = {
   title: string;
   color: string;
   id: string;
+  days: boolean[];
 };
 
 type TodoContextType = {
@@ -27,17 +29,37 @@ function App() {
 
   // set a default list of todos
   // Todos will be of type {title: string, color: string}[]
-  const colors = ["red", "blue", "green", "yellow"];
-
   return (
-    <div className="pt-12 min-h-screen w-full flex flex-col flex-wrap gap-4 justify-center items-center bg-slate-500">
+    <div className="pt-12 w-full flex flex-col flex-wrap gap-4 justify-center items-center bg-black">
       <ToDoContext.Provider value={{ todos, setTodos }}>
-        <AddNewTodo />
-        <div className="flex flex-col min-h-screen gap-10">
+        <div className="flex flex-col gap-10">
+          <GlobalTodo />
           {todos.map((todo, index) => (
-            <ToDo key={index} title={todo.title} color={todo.color} id={todo.id} />
+            <ToDo
+              key={index}
+              title={todo.title}
+              color={todo.color}
+              id={todo.id}
+              days={todo.days}
+            />
           ))}
         </div>
+        <AddNewTodo />
+        <Button
+          onClick = {() => {
+            setTodos([
+              ...todos,
+              {
+                title: "Test Todo",
+                color: "red",
+                id: createId(),
+                days: Array.from({ length: 365 }).map(() => false),
+              },
+            ]);
+          }}
+        >
+          Test Todo add
+        </Button>
       </ToDoContext.Provider>
     </div>
   );

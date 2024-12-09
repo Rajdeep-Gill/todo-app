@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Toast } from "./ui/toast";
+
 import { toast } from "@/hooks/use-toast";
 import { createId } from "@paralleldrive/cuid2";
 
@@ -67,6 +67,7 @@ export const AddNewTodo = () => {
         title: data.title,
         color: data.color,
         id: createId(),
+        days: Array.from({ length: 365 }).map(() => false),
       },
     ]);
     setOpen(false);

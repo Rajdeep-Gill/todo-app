@@ -15,85 +15,90 @@ type Props = {
   color: string;
   title: string;
   id: string;
+  days: boolean[];
 };
 
 const getColorStyles = (color: string) => {
   const colorMap = {
-    red: { 
+    red: {
       lightBg: "rgb(254 226 226)",
-      bg: "rgb(254 202 202)", 
+      bg: "rgb(254 202 202)",
       selected: "rgb(248 113 113)",
-      border: "rgb(239 68 68)"
+      border: "rgb(239 68 68)",
     },
-    blue: { 
+    blue: {
       lightBg: "rgb(219 234 254)",
-      bg: "rgb(191 219 254)", 
+      bg: "rgb(191 219 254)",
       selected: "rgb(59 130 246)",
-      border: "rgb(37 99 235)"
+      border: "rgb(37 99 235)",
     },
-    green: { 
+    green: {
       lightBg: "rgb(220 252 231)",
-      bg: "rgb(187 247 208)", 
+      bg: "rgb(187 247 208)",
       selected: "rgb(34 197 94)",
-      border: "rgb(22 163 74)"
+      border: "rgb(22 163 74)",
     },
-    yellow: { 
+    yellow: {
       lightBg: "rgb(254 249 195)",
-      bg: "rgb(254 240 138)", 
+      bg: "rgb(254 240 138)",
       selected: "rgb(234 179 8)",
-      border: "rgb(202 138 4)"
+      border: "rgb(202 138 4)",
     },
   };
 
   return colorMap[color as keyof typeof colorMap] || colorMap.red;
 };
 
-export const ToDo = ({ title, color, id }: Props) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+export const ToDo = ({ title, color, id, days }: Props) => {
   const { setTodos } = useContext(ToDoContext);
 
   const handleCardDelete = () => {
-    console.log("Delete card with id: ", id);
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
     toast({
       title: "Todo Deleted",
     });
   };
-  
+
   const selectedColor = getColorStyles(color.toLowerCase());
 
   return (
     <Card
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{ borderColor: selectedColor.border,
-        backgroundColor: selectedColor.lightBg
+      style={{
+        borderColor: selectedColor.border,
+        backgroundColor: selectedColor.lightBg,
       }}
     >
-      <CardTitle className="my-2 ml-4 py-2 pl-2 flex justify-between items-center"
+      <CardTitle
+        className="my-2 ml-4 py-2 pl-2 flex justify-between items-center"
         style={{ color: selectedColor.border }}
       >
         {title}
-        {isHovered && (
-          <Trash2
-            className="text-red-600 hover:bg-red-200 mr-6 rounded-md"
-            size={16}
-            onClick={handleCardDelete}
-          />
-        )}
+        <Trash2
+          className="text-red-600 hover:bg-red-200 mr-6 rounded-md"
+          size={16}
+          onClick={handleCardDelete}
+        />
       </CardTitle>
       <CardContent className="grid grid-rows-5 grid-flow-col max-w-[240] mt-4 gap-1">
         {Array.from({ length: 365 }).map((_, index) => (
-          <SelectComponent key={index} color={selectedColor} index={index} />
+          <SelectComponent key={index} color={selectedColor} index={index} id={id} />
         ))}
       </CardContent>
     </Card>
   );
 };
 
-function SelectComponent({ color, index }: { color: {lightBg: string, bg: string, selected: string, border: string}; index: number }) {
+function SelectComponent({
+  color,
+  index,
+  id,
+}: {
+  color: { lightBg: string; bg: string; selected: string; border: string };
+  index: number;
+  id: string;
+}) {
   const [selected, setSelected] = useState(false);
+  const { todos, setTodos } = useContext(ToDoContext);
 
   const getDayOfYear = (date: Date): number => {
     const start = new Date(date.getFullYear(), 0, 0);
@@ -112,11 +117,23 @@ function SelectComponent({ color, index }: { color: {lightBg: string, bg: string
   const today = getDayOfYear(new Date());
   const isToday = today === index;
   const date = getDateFromIndex(index);
-  const formattedDate = date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric',
-    weekday: 'short'
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    weekday: "short",
   });
+
+  const handleCheckboxClick = () => {
+    setSelected(!selected);
+    // Update the day in the todo list
+    setTodos((prev) => {
+      const newTodos = [...prev];
+      const todoIndex = newTodos.findIndex((todo) => todo.id === id);
+      newTodos[todoIndex].days[index] = !newTodos[todoIndex].days[index];
+      return newTodos;
+    })
+
+  }
 
   return (
     <TooltipProvider>
@@ -130,13 +147,13 @@ function SelectComponent({ color, index }: { color: {lightBg: string, bg: string
             style={{
               backgroundColor: selected ? color.selected : color.bg,
               borderColor: color.border,
-              ...(isToday && { '--tw-ring-color': color.border } as any)
+              ...(isToday && ({ "--tw-ring-color": color.border } as any)),
             }}
-            onClick={() => setSelected(!selected)}
+            onClick={() => {handleCheckboxClick()}}
           ></div>
         </TooltipTrigger>
-        <TooltipContent 
-          style={{ 
+        <TooltipContent
+          style={{
             backgroundColor: color.lightBg,
             borderColor: color.selected,
             color: color.border,
