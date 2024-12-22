@@ -28,7 +28,7 @@ const initialState: State = {
   todos: JSON.parse(localStorage.getItem("todos") || "[]") || [],
 };
 
-const colors = ["red", "blue", "green", "yellow"];
+const colors = ["red", "blue", "green", "yellow", "purple", "orange", "teal", "gray"];
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {

@@ -52,8 +52,37 @@ export function getColorStyles(color: string) {
       selected: "rgb(234 179 8)",
       border: "rgb(202 138 4)",
     },
-  };
-
+    purple: {
+      lightBg: "rgb(243 232 255)",
+      bg: "rgb(233 213 255)",
+      selected: "rgb(168 85 247)",
+      border: "rgb(147 51 234)",
+    },
+    orange: {
+      lightBg: "rgb(255 237 213)",
+      bg: "rgb(255 215 164)",
+      selected: "rgb(249 115 22)",
+      border: "rgb(234 88 12)",
+    },
+    pink: {
+      lightBg: "rgb(252 231 243)",
+      bg: "rgb(251 207 232)",
+      selected: "rgb(236 72 153)",
+      border: "rgb(219 39 119)",
+    },
+    teal: {
+      lightBg: "rgb(204 251 241)",
+      bg: "rgb(153 246 228)",
+      selected: "rgb(20 184 166)",
+      border: "rgb(13 148 136)",
+    },
+    gray: {
+      lightBg: "rgb(243 244 246)",
+      bg: "rgb(229 231 235)",
+      selected: "rgb(107 114 128)",
+      border: "rgb(75 85 99)",
+    },
+  }    
   return colorMap[color as keyof typeof colorMap] || colorMap.red;
 };
 
