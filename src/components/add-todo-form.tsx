@@ -17,6 +17,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 
 const formSchema = z.object({
-  title: z.string(),
+  title: z.string().nonempty("Title is required"),
 });
 
 type Props = {
@@ -78,6 +79,7 @@ export const AddTodoForm = ({ addNew }: Props) => {
                     <FormDescription>
                       The title of the todo you want to track
                     </FormDescription>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

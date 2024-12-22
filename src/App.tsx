@@ -1,8 +1,10 @@
 import "./App.css";
 import { useCallback, useEffect, useReducer } from "react";
 
+import { createId } from "@paralleldrive/cuid2";
+
 import { TodoItem } from "@/components/todo-item";
-import { Button } from "@/components/ui/button";
+
 import { AddTodoForm } from "./components/add-todo-form";
 import { colorObj, getColorStyles } from "./lib/utils";
 import { GlobalTodo } from "./components/global-todo";
@@ -57,23 +59,8 @@ function reducer(state: State, action: Action): State {
         todos: [
           ...state.todos,
           {
-            id: (state.todos.length + 1).toString(),
+            id: createId(),
             title: action.title,
-            days: Array.from({ length: 365 }).map(() => false),
-            color: getColorStyles(
-              colors[Math.floor(Math.random() * colors.length)]
-            ),
-          },
-        ],
-      };
-    case "TEMP_ADD_TODO":
-      return {
-        ...state,
-        todos: [
-          ...state.todos,
-          {
-            id: (state.todos.length + 1).toString(),
-            title: `New Todo ${state.todos.length + 1}`,
             days: Array.from({ length: 365 }).map(() => false),
             color: getColorStyles(
               colors[Math.floor(Math.random() * colors.length)]
@@ -97,10 +84,6 @@ const App = () => {
     dispatch({ type: "DELETE_TODO", id });
   }, []);
 
-  const tempAdd = useCallback(() => {
-    dispatch({ type: "TEMP_ADD_TODO" });
-  }, []);
-
   const addNew = useCallback((title: string) => {
     dispatch({ type: "ADD_TODO", title });
   }, []);
@@ -112,9 +95,9 @@ const App = () => {
   }, [state]);
 
   return (
-    <div className="pt-12 w-full flex flex-col flex-wrap gap-4 items-center bg-black text-white min-h-screen">
-      <h1 className="text-4xl font-bold text-center text-white rounded-lg shadow-lg">
-        Todo App
+    <div className="mt-12 w-full flex flex-col flex-wrap gap-4 items-center bg-black text-white min-h-screen mb-12">
+      <h1 className="text-4xl font-bold text-center text-white rounded-lg shadow-lg pb-6">
+        Todo List
       </h1>      
       <GlobalTodo 
         allTodos = {state.todos}
@@ -130,16 +113,23 @@ const App = () => {
           toggleDay={toggleDay}
         />
       ))}
-      <Button
-        onClick={tempAdd}
-        className="bg-white border-blue-600 border-2 text-black"
-      >
-        Add
-      </Button>
-
       <div className = "absolute top-0 right-0 m-4">
         <AddTodoForm addNew={addNew} />
       </div>
+      <footer className="relative bottom-0 w-full">
+        <p className="text-center text-white text-sm">
+          Go back to {" "}
+          <a
+            href="
+            https://rajdeepgill.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            portfolio
+          </a>
+        </p>
+      </footer>
     </div>
   );
 };
