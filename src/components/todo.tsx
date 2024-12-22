@@ -1,21 +1,15 @@
-import { useContext, useState } from "react";
+import { memo, useContext } from "react";
 import { Card, CardContent, CardTitle } from "./ui/card";
-import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { ToDoContext } from "@/App";
 import { toast } from "@/hooks/use-toast";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
+import { DayBox } from "./day-box";
 
 type Props = {
   color: string;
   title: string;
   id: string;
-  days: boolean[];
 };
 
 const getColorStyles = (color: string) => {
@@ -49,8 +43,9 @@ const getColorStyles = (color: string) => {
   return colorMap[color as keyof typeof colorMap] || colorMap.red;
 };
 
-export const ToDo = ({ title, color, id, days }: Props) => {
+export const ToDo = memo(({ title, color, id }: Props) => {
   const { setTodos } = useContext(ToDoContext);
+  console.log("Rendering", id)
 
   const handleCardDelete = () => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
@@ -79,90 +74,11 @@ export const ToDo = ({ title, color, id, days }: Props) => {
           onClick={handleCardDelete}
         />
       </CardTitle>
-      <CardContent className="grid grid-rows-5 grid-flow-col max-w-[240] mt-4 gap-1">
+      <CardContent className="grid grid-rows-7 grid-flow-col max-w-[240] mt-4 gap-1">
         {Array.from({ length: 365 }).map((_, index) => (
-          <SelectComponent key={index} color={selectedColor} index={index} id={id} />
+          <DayBox key={index} color={selectedColor} index={index} id={id} />
         ))}
       </CardContent>
     </Card>
   );
-};
-
-function SelectComponent({
-  color,
-  index,
-  id,
-}: {
-  color: { lightBg: string; bg: string; selected: string; border: string };
-  index: number;
-  id: string;
-}) {
-  const [selected, setSelected] = useState(false);
-  const { todos, setTodos } = useContext(ToDoContext);
-
-  const getDayOfYear = (date: Date): number => {
-    const start = new Date(date.getFullYear(), 0, 0);
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    return Math.floor(diff / oneDay) - 1;
-  };
-
-  const getDateFromIndex = (index: number): Date => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const date = new Date(start.getTime() + (index + 1) * 24 * 60 * 60 * 1000);
-    return date;
-  };
-
-  const today = getDayOfYear(new Date());
-  const isToday = today === index;
-  const date = getDateFromIndex(index);
-  const formattedDate = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    weekday: "short",
-  });
-
-  const handleCheckboxClick = () => {
-    setSelected(!selected);
-    // Update the day in the todo list
-    setTodos((prev) => {
-      const newTodos = [...prev];
-      const todoIndex = newTodos.findIndex((todo) => todo.id === id);
-      newTodos[todoIndex].days[index] = !newTodos[todoIndex].days[index];
-      return newTodos;
-    })
-
-  }
-
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <div
-            className={cn(
-              "size-3 rounded-full cursor-pointer border-[1px] border-opacity-40 transition-colors",
-              isToday && "ring-[1.5px] ring-offset-1"
-            )}
-            style={{
-              backgroundColor: selected ? color.selected : color.bg,
-              borderColor: color.border,
-              ...(isToday && ({ "--tw-ring-color": color.border } as any)),
-            }}
-            onClick={() => {handleCheckboxClick()}}
-          ></div>
-        </TooltipTrigger>
-        <TooltipContent
-          style={{
-            backgroundColor: color.lightBg,
-            borderColor: color.selected,
-            color: color.border,
-          }}
-          className="border-2 font-medium"
-        >
-          <p>{formattedDate}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
+})
