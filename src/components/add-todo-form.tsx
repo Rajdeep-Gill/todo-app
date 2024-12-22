@@ -52,7 +52,7 @@ export const AddTodoForm = ({ addNew }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setOpen(true)}>
+        <Button variant="outline" className = "text-slate-900" onClick={() => setOpen(true)}>
           Add Todo
         </Button>
       </DialogTrigger>

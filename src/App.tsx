@@ -1,14 +1,17 @@
 import "./App.css";
-import { useCallback, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
 import { TodoItem } from "@/components/todo-item";
 import { Button } from "@/components/ui/button";
 import { AddTodoForm } from "./components/add-todo-form";
+import { colorObj, getColorStyles } from "./lib/utils";
+import { GlobalTodo } from "./components/global-todo";
 
-type Todo = {
+export type Todo = {
   id: string;
   title: string;
   days: boolean[];
+  color: colorObj;
 };
 
 type State = {
@@ -18,12 +21,14 @@ type State = {
 type Action =
   | { type: "TOGGLE_DAY"; id: string; index: number }
   | { type: "DELETE_TODO"; id: string }
-  | { type: "ADD_TODO"; title: string}
+  | { type: "ADD_TODO"; title: string }
   | { type: "TEMP_ADD_TODO" };
 
 const initialState: State = {
-  todos: [],
+  todos: JSON.parse(localStorage.getItem("todos") || "[]") || [],
 };
+
+const colors = ["red", "blue", "green", "yellow"];
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -55,9 +60,12 @@ function reducer(state: State, action: Action): State {
             id: (state.todos.length + 1).toString(),
             title: action.title,
             days: Array.from({ length: 365 }).map(() => false),
+            color: getColorStyles(
+              colors[Math.floor(Math.random() * colors.length)]
+            ),
           },
         ],
-      }
+      };
     case "TEMP_ADD_TODO":
       return {
         ...state,
@@ -67,6 +75,9 @@ function reducer(state: State, action: Action): State {
             id: (state.todos.length + 1).toString(),
             title: `New Todo ${state.todos.length + 1}`,
             days: Array.from({ length: 365 }).map(() => false),
+            color: getColorStyles(
+              colors[Math.floor(Math.random() * colors.length)]
+            ),
           },
         ],
       };
@@ -76,7 +87,6 @@ function reducer(state: State, action: Action): State {
 }
 
 const App = () => {
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const toggleDay = useCallback((id: string, index: number) => {
@@ -95,14 +105,27 @@ const App = () => {
     dispatch({ type: "ADD_TODO", title });
   }, []);
 
+  // if state ever changes, update save state to local storage
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(state.todos));
+    console.log("State updated");
+  }, [state]);
+
   return (
-    <div className="pt-12 w-full flex flex-col flex-wrap gap-4 justify-center items-center bg-black text-white min-h-screen">
+    <div className="pt-12 w-full flex flex-col flex-wrap gap-4 items-center bg-black text-white min-h-screen">
+      <h1 className="text-4xl font-bold text-center text-white rounded-lg shadow-lg">
+        Todo App
+      </h1>      
+      <GlobalTodo 
+        allTodos = {state.todos}
+      />
       {state.todos.map((todo) => (
         <TodoItem
           key={todo.id}
           id={todo.id}
           title={todo.title}
           days={todo.days}
+          color={todo.color}
           handleDelete={handleDelete}
           toggleDay={toggleDay}
         />
@@ -113,10 +136,10 @@ const App = () => {
       >
         Add
       </Button>
-      <Button onClick={() => console.log(state.todos)}>Log info</Button>
-      <AddTodoForm 
-        addNew = {addNew}
-      />
+
+      <div className = "absolute top-0 right-0 m-4">
+        <AddTodoForm addNew={addNew} />
+      </div>
     </div>
   );
 };

@@ -19,6 +19,13 @@ export function getDateFromIndex(index: number): Date {
   return date;
 }
 
+export type colorObj = {
+  lightBg: string;
+  bg: string;
+  selected: string;
+  border: string;
+}
+
 export function getColorStyles(color: string) {
   const colorMap = {
     red: {
@@ -50,3 +57,18 @@ export function getColorStyles(color: string) {
   return colorMap[color as keyof typeof colorMap] || colorMap.red;
 };
 
+export function getLongestStreak(days: boolean[]): number {
+  let streak = 0;
+  let longestStreak = 0;
+
+  for (const day of days) {
+    if (day) {
+      streak++;
+    } else {
+      longestStreak = Math.max(streak, longestStreak);
+      streak = 0;
+    }
+  }
+
+  return longestStreak;
+}
